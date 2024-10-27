@@ -1,7 +1,7 @@
 {
   "name": "trackr",
   "version": "1.0.0",
-  "description": "a web app that keeps track of your biking and running",
+  "description": "a web app that keeps track of your biking and jogging",
   "default": "index.html ",
   "scripts": {
     "start": "parcel index.html",
