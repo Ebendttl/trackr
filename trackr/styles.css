@@ -263,11 +263,12 @@ a:visited {
 }
 
 .running-popup .leaflet-popup-content-wrapper {
-  border-left: 5px solid var(--color-brand--2);
+  border-left: 5px solid;
+  border-image: linear-gradient(to bottom, #f04c19, #ace1a3) 1;
 }
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid;
-  border-image: linear-gradient(to bottom, #ffff00, #39ff14) 1;
+  border-image: linear-gradient(to bottom, #ffff00, #b8e0b1) 1;
 }
 .reset {
   font-size: 1.5rem;
