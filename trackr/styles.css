@@ -162,7 +162,7 @@ a:visited {
 }
 
 .form {
-  background-color: linear-gradient(to right, #ff7e5f, #feb47b);
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
   border-radius: 5px;
   padding: 1.5rem 2.75rem;
   margin-bottom: 1.75rem;
@@ -212,7 +212,7 @@ a:visited {
 
 .form__input:focus {
   outline: none;
-  background-color: #fff;
+  background-color: #feb47b;
 }
 
 .form__btn {
