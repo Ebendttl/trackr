@@ -206,13 +206,13 @@ a:visited {
   font-size: 1.4rem;
   border: none;
   border-radius: 3px;
-  background-color: var(--color-light--3);
+  background-color: #feb47b;
   transition: all 0.2s;
 }
 
 .form__input:focus {
   outline: none;
-  background-color: #feb47b;
+  background-color: #fff;
 }
 
 .form__btn {
