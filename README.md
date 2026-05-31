@@ -1,275 +1,93 @@
-# Trackr
+# TrackR APEX — Flagship GIS Workout Analytics Platform
 
-A lightweight workout tracker that lets you **log jogging and biking workouts on an interactive map**. Trackr uses your browser’s geolocation to center the map, lets you click to add a workout at a location, and persists workouts in **Local Storage** so they’re still there when you refresh.
+A world-class, privacy-first physical telemetry console engineered using **Next.js 16 (App Router)**, **TypeScript**, **Zustand**, and **Leaflet.js**. Re-imagined as an offline-first high-performance dashboard, TrackR APEX serves as an alternative to proprietary, surveillance-driven exercise suites.
 
-> Built with vanilla JavaScript + HTML/CSS, bundled with **Parcel**.
-
----
-
-## Table of contents
-
-- Demo
-- Features
-- How it works
-- Tech stack
-- Project structure
-- Getting started
-  - Prerequisites
-  - Install
-  - Run locally
-  - Build for production
-- Usage guide
-  - Create a workout
-  - Delete a workout
-  - Delete all workouts
-- Data model
-- Persistence
-- Configuration / customization
-- Troubleshooting
-- Contributing
-- License
-- Authors
+> **Live Production Console**: [trackr-dun.vercel.app](https://trackr-dun.vercel.app)
+> Fully integrated with **Vercel** with secure headers, CD builds, and Turbopack.
 
 ---
 
-## Demo
+## 🚀 Key Architectural Improvements (APEX Migration)
 
-- Deployed site (as referenced in HTML meta tags): `https://trackrie.netlify.app`
-
-If you fork/host your own version, update `og:url` and other metadata in `index.html`.
-
----
-
-## Features
-
-- **Interactive map** powered by Leaflet + OpenStreetMap tiles
-- **Geolocation-based start position**
-- Log 2 workout types:
-  - **Jogging**: distance, duration, cadence → pace is computed
-  - **Biking**: distance, duration, elevation gain → speed is computed
-- **Click-to-add** workflow:
-  - click map → form appears
-  - submit workout → marker + list item are rendered
-- **Workout list sidebar**:
-  - click a workout → map pans/zooms to its marker
-- **Delete single workout** (via the `×` button on a workout list item)
-- **Delete all workouts**
-- **Persistence with Local Storage** (`localStorage["workouts"]`)
+- **Framework Migration**: Fully ported from legacy vanilla JS classes to a modern, type-safe **Next.js 16 + React 19** architecture.
+- **State Management**: Zero-context transactional hooks powered by **Zustand stores** with automatic `localStorage` persistence middleware.
+- **Form Schema Validation**: Strictly validated using **React Hook Form** coupled with custom **Zod schemas**.
+- **Interactive Telemetry**: Responsive SVG count-up stats cards and three-tab **Recharts analytics dashboards** (Distance Trend, Activity Split, Pace Trends).
+- **Responsive Theme Engine**: Dynamic client toggling between Void, Eclipse, Arctic, and Carbon presets.
+- **GIS Route-Drawing**: Precision multi-point Leaflet path tracking with custom pulsing teardrop pins and animated polyline dashed flows.
+- **Flagship Developer Portal**: Comprehensive in-app technical reference guide located directly at `/docs`.
 
 ---
 
-## How it works
+## 📁 Repository Overview
 
-1. On page load, `App`:
-   - requests geolocation permissions
-   - loads saved workouts from Local Storage
-   - renders saved workouts into the sidebar
-2. After geolocation is granted, Leaflet initializes the map and:
-   - listens for map clicks
-   - renders markers for any saved workouts
-3. When you submit the form:
-   - Trackr validates numeric inputs
-   - creates a `Jogging` or `Biking` object (both extend `Workout`)
-   - renders the workout in the list
-   - renders a popup marker on the map
-   - saves the updated workout list to Local Storage
-
----
-
-## Tech stack
-
-**Core**
-- JavaScript (vanilla)
-- HTML / CSS
-
-**Libraries**
-- Leaflet (loaded from `unpkg.com`) for maps
-- OpenStreetMap tiles (via Leaflet tile layer URL)
-- Google Fonts (Manrope)
-
-**Tooling**
-- Parcel bundler (v1 via `parcel-bundler`)
-- Prettier config included at `trackr/.prettierrc`
+```
+trackr/                          ← Repository Root
+├── trackr-apex/                 ← Next.js 16 Workspace
+│   ├── app/                     ← Pages & Layouts (page.tsx, layout.tsx, docs/)
+│   ├── components/              ← Modular Mission Control UI Panels
+│   │   ├── sidebar/             ← Sidebar Zones 1-8
+│   │   ├── workout/             ← Cards, forms & inline editors
+│   │   ├── map/                 ← Map view wrapper, polyline layers, markers
+│   │   └── ui/                  ← Popups, toast systems, selectors
+│   ├── stores/                  ← State managers (workoutStore, mapStore, uiStore)
+│   ├── types/                   ← TypeScript interfaces & Zod validators
+│   ├── lib/                     ← Mathematical calculations & persistence layer
+│   ├── hooks/                   ← Custom client hooks (geolocation, debounce)
+│   ├── vercel.json              ← Secure serverless settings
+│   └── tsconfig.json            ← Strict compiler controls
+├── README.md                    ← THIS FILE
+└── memory.md                    ← Active project memory & progress log
+```
 
 ---
 
-## Project structure
+## 🛠️ Installation & Setup
 
-At the repository root:
-
-- `index.html` – application shell (loads Leaflet + app assets)
-- `trackr/scripts.js` – application logic (classes + DOM + Leaflet + persistence)
-- `trackr/styles.css` – styling
-- `trackr/public/trackrlogo.png` – app logo used in the sidebar
-- `trackr/tractr-architecture-files/` – architecture diagrams/images
-- `package.json` – Parcel scripts
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Node.js + npm installed
-- A modern browser with Geolocation support (Chrome/Edge/Firefox/Safari)
-
-> Note: Geolocation often requires `https` in production. Locally, `http://localhost` is typically allowed.
-
-### Install
+Ensure you have **Node.js 18.17.0+** or **20.0.0+** installed.
 
 ```bash
-git clone https://github.com/Ebendttl/trackr.git
-cd trackr
+# Navigate to the workspace
+cd trackr-apex
+
+# Install all required dependencies
 npm install
-```
 
-### Run locally
+# Start the dev server with live hot-reloads
+npm run dev
 
-```bash
-npm start
-```
-
-Parcel will start a dev server. Open the URL printed in your terminal (commonly `http://localhost:1234` when using Parcel v1).
-
-### Build for production
-
-```bash
+# Build the optimized production bundle
 npm run build
 ```
 
-This generates a production build (Parcel output directory depends on Parcel settings; by default it emits to `dist/`).
+Once running, navigate to [http://localhost:3000](http://localhost:3000) to open the console.
 
 ---
 
-## Usage guide
+## 🏅 Gamified Badging (8-Item System)
 
-### Create a workout
+TrackR APEX features a gamified achievements tracker:
 
-1. Allow location access when prompted.
-2. Click anywhere on the map.
-3. Fill out the form:
-   - Select **Jogging** or **Biking**
-   - Enter distance (km) and duration (min)
-   - If **Jogging**: enter cadence (step/min)
-   - If **Biking**: enter elevation gain (meters)
-4. Press Enter / submit the form.
-
-You’ll see:
-- a **marker** at the clicked location
-- a **workout card** in the sidebar list
-
-### Delete a workout
-
-- Click the **×** in the workout card header.
-
-> Current implementation reloads the page after deletion to refresh the UI.
-
-### Delete all workouts
-
-- Click **Delete All** at the bottom of the sidebar.
-
-This removes the `workouts` key from Local Storage and reloads the page.
+| Badge | Condition |
+|---|---|
+| 💯 Century Club | Log a total of 100+ km across all sessions |
+| ⚡ Speed Demon | Jogging pace ≤ 4.5 min/km or Cycling speed ≥ 30 km/h |
+| 🗺️ Explorer | Draw a GPS route featuring 3+ waypoints |
+| ❄️ Cold Warrior | Log a workout when the temperature is below 12°C |
+| 🌅 Early Bird | Complete a workout before 7:00 AM local time |
+| 💧 Hydration Hero | Log 5 or more workouts in a single calendar week |
+| 🗓️ Consistent | Log workouts on 3 consecutive calendar days |
+| 🌧️ Rain Runner | Log a workout during active rainfall conditions |
 
 ---
 
-## Data model
+## 🔒 Privacy & Open Source Justification
 
-Workouts are modeled using classes in `trackr/scripts.js`:
-
-- `Workout`
-  - `date` (Date)
-  - `id` (derived from timestamp)
-  - `coords` (`[lat, lng]`)
-  - `distance` (km)
-  - `duration` (min)
-  - `description` (generated, e.g., “Jogging on March 17”)
-- `Jogging extends Workout`
-  - `type = "jogging"`
-  - `cadence` (step/min)
-  - `pace` (min/km) calculated as `duration / distance`
-- `Biking extends Workout`
-  - `type = "biking"`
-  - `elevationGain` (meters)
-  - `speed` (km/h) calculated as `distance / (duration / 60)`
+TrackR APEX operates fully client-side. Physical telemetry, route maps, notes, and achievement milestones are stored locally in the athlete's browser cache. We enforce zero data monetization, zero third-party analytical integrations, and zero servers.
 
 ---
 
-## Persistence
+## 🤝 Authors
 
-Trackr uses the browser’s Local Storage API:
-
-- Save: `localStorage.setItem("workouts", JSON.stringify(workoutsArray))`
-- Load: `JSON.parse(localStorage.getItem("workouts"))`
-
-Because objects are serialized/deserialized as plain JSON, loaded workouts do not regain their class prototypes. (The app currently only needs the stored fields for rendering, so this works fine.)
-
----
-
-## Configuration / customization
-
-A few easy tweaks you can make:
-
-- **Map zoom level**: update `#mapZoomLevel` in `App`
-- **Tile layer**: replace the Leaflet `tileLayer` URL (currently OpenStreetMap)
-- **Branding**:
-  - Sidebar logo: `trackr/public/trackrlogo.png`
-  - Open Graph image: `/trackrlogo1.png` (root file)
-- **Workout types**:
-  - Add a new subclass of `Workout`
-  - Update the form in `index.html`
-  - Add rendering logic in `_renderWorkout()` and marker popup content
-
----
-
-## Troubleshooting
-
-### “Could not get your position”
-- Ensure location permissions are enabled for the site.
-- Try running on `http://localhost` (allowed by most browsers).
-- If deployed, use `https`.
-
-### Map doesn’t appear
-- Confirm Leaflet CSS/JS CDN links are reachable.
-- Check the browser console for network errors.
-
-### Workouts disappear unexpectedly
-- Local Storage can be cleared by:
-  - browser settings
-  - private/incognito mode
-  - extensions that clear site data
-
----
-
-## Contributing
-
-Contributions are welcome.
-
-1. Fork the repo
-2. Create a branch:
-   ```bash
-   git checkout -b my-feature
-   ```
-3. Commit:
-   ```bash
-   git commit -m "Add feature: ..."
-   ```
-4. Push:
-   ```bash
-   git push origin my-feature
-   ```
-5. Open a Pull Request
-
----
-
-## License
-
-This project is currently marked as **ISC** in `package.json`.
-
-If you want it to be MIT (the previous README mentioned MIT), update `package.json` and add a `LICENSE` file to make it explicit.
-
----
-
-## Authors
-
-- Fakolujo Micheal Ayomide (`@thefaks_officia`)
-- Akinseinde Ebenezer Akindele (`@Ebendttl`)
+- **Fakolujo Micheal Ayomide** (`@thefaks_officia` on Twitter)
+- **Akinseinde Ebenezer Akindele** (`@Ebendttl` on Twitter)
