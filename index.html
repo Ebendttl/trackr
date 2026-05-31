@@ -47,6 +47,32 @@
         <p class="ptitle">track</p>
         <span class="ptitler">R</span>
       </div>
+
+      <!-- Premium Quick Stats Dashboard -->
+      <div class="stats-container">
+        <div class="stat-card">
+          <span class="stat-icon">🔥</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-workouts">0</span>
+            <span class="stat-label">Workouts</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🗺️</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-distance">0.0</span>
+            <span class="stat-label">Total km</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⏱️</span>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-duration">0</span>
+            <span class="stat-label">Total min</span>
+          </div>
+        </div>
+      </div>
+
       <ul class="workouts">
         <form class="form hidden">
           <div class="form__row">
@@ -137,7 +163,9 @@
         </li> -->
       </ul>
 
-      <span class="reset">Delete All</span>
+      <div class="actions-container">
+        <button class="reset btn-reset">Clear All Workouts</button>
+      </div>
       <p class="copyright">
         &copy; Copyright by
         <a

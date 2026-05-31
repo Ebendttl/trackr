@@ -93,6 +93,9 @@ class App {
     //appearance of delete all option
     this.appear();
 
+    // Update quick stats dashboard
+    this._updateStats();
+
     //event handlers
     form.addEventListener(`submit`, this._newWorkout.bind(this));
     inputType.addEventListener(`change`, this._toggleElevationField.bind(this));
@@ -117,9 +120,9 @@ class App {
     const coords = [latitude, longitude];
     this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(this.#map);
 
     this.#map.on(`click`, this._showForm.bind(this));
@@ -179,6 +182,7 @@ class App {
     }
     this.#workouts.push(workout);
     this.appear();
+    this._updateStats();
     //add new object to workout array
 
     //render workout on map as marker
@@ -312,6 +316,19 @@ class App {
     } else {
       resetBtn.style.display = `block`;
     }
+  }
+  _updateStats() {
+    const workoutsCount = this.#workouts.length;
+    const totalDistance = this.#workouts.reduce((acc, work) => acc + work.distance, 0).toFixed(1);
+    const totalDuration = this.#workouts.reduce((acc, work) => acc + work.duration, 0);
+
+    const workoutsEl = document.getElementById('stat-workouts');
+    const distanceEl = document.getElementById('stat-distance');
+    const durationEl = document.getElementById('stat-duration');
+
+    if (workoutsEl) workoutsEl.textContent = workoutsCount;
+    if (distanceEl) distanceEl.textContent = totalDistance;
+    if (durationEl) durationEl.textContent = totalDuration;
   }
   reset() {
     localStorage.removeItem(`workouts`);
