@@ -48,7 +48,7 @@ export default function IntelligencePanel() {
   }));
 
   return (
-    <div style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', marginBottom: 12, overflow: 'hidden', background: 'var(--surface-raised)' }}>
+    <div className="intelligence-panel" style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', marginBottom: 12, overflow: 'hidden', background: 'var(--surface-raised)' }}>
       <button
         onClick={() => togglePanel('analytics')}
         className="w-full flex items-center justify-between px-4 py-3 hover:opacity-80 transition-opacity"

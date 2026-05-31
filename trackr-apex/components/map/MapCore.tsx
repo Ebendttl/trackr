@@ -44,10 +44,11 @@ export default function MapCore() {
   const workouts = useWorkoutStore((s) => s.workouts);
   const activeWorkoutId = useWorkoutStore((s) => s.activeWorkoutId);
 
-  // Track map tiles from environment variables or use premium CartoDB Dark Matter defaults
+  // Stadia Alidade Smooth Dark — near-white labels, no API key required.
+  // Falls back to env override if provided.
   const tileUrl =
     process.env.NEXT_PUBLIC_MAP_TILE_URL ??
-    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
 
   // Dynamic zoom control on card click
   useEffect(() => {
@@ -72,7 +73,8 @@ export default function MapCore() {
       >
         <TileLayer
           url={tileUrl}
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          maxZoom={20}
         />
 
         <MapEventHandler />

@@ -26,6 +26,24 @@ interface UIStore {
   achievements: Achievement[];
   hydrateAchievements: () => void;
   updateAchievements: (achievements: Achievement[]) => void;
+
+  // Onboarding tour
+  hasCompletedOnboarding: boolean;
+  isOnboardingActive: boolean;
+  currentOnboardingStep: number;
+  startOnboarding: () => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  skipOnboarding: () => void;
+  completeOnboarding: () => void;
+}
+
+const ONBOARDING_KEY = 'trackr-apex-onboarding';
+const TOTAL_STEPS = 8;
+
+function loadOnboardingCompleted(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(ONBOARDING_KEY) === 'true';
 }
 
 export const useUIStore = create<UIStore>((set, get) => ({
@@ -61,11 +79,50 @@ export const useUIStore = create<UIStore>((set, get) => ({
   hydrateAchievements: () => {
     const stored = loadAchievements();
     const savedTheme = loadTheme() as Theme | null;
+    const completed = loadOnboardingCompleted();
     if (stored) set({ achievements: stored });
     if (savedTheme) set({ theme: savedTheme });
+    set({ hasCompletedOnboarding: completed });
+    // Auto-trigger tour on first visit (800ms delay)
+    if (!completed) {
+      setTimeout(() => set({ isOnboardingActive: true }), 800);
+    }
   },
   updateAchievements: (achievements) => {
     saveAchievements(achievements);
     set({ achievements });
+  },
+
+  // Onboarding tour state
+  hasCompletedOnboarding: false,
+  isOnboardingActive: false,
+  currentOnboardingStep: 0,
+
+  startOnboarding: () => set({ isOnboardingActive: true, currentOnboardingStep: 0 }),
+
+  nextStep: () => {
+    const { currentOnboardingStep } = get();
+    if (currentOnboardingStep < TOTAL_STEPS - 1) {
+      set({ currentOnboardingStep: currentOnboardingStep + 1 });
+    } else {
+      get().completeOnboarding();
+    }
+  },
+
+  prevStep: () => {
+    const { currentOnboardingStep } = get();
+    if (currentOnboardingStep > 0) {
+      set({ currentOnboardingStep: currentOnboardingStep - 1 });
+    }
+  },
+
+  skipOnboarding: () => {
+    if (typeof window !== 'undefined') localStorage.setItem(ONBOARDING_KEY, 'true');
+    set({ isOnboardingActive: false, hasCompletedOnboarding: true });
+  },
+
+  completeOnboarding: () => {
+    if (typeof window !== 'undefined') localStorage.setItem(ONBOARDING_KEY, 'true');
+    set({ isOnboardingActive: false, hasCompletedOnboarding: true });
   },
 }));

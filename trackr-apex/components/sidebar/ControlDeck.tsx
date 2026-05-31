@@ -29,7 +29,7 @@ export default function ControlDeck() {
   };
 
   return (
-    <div className="flex flex-col gap-2 mb-3">
+    <div className="control-deck flex flex-col gap-2 mb-3">
       {/* Search */}
       <div className="relative flex items-center">
         <Search size={13} className="absolute left-3 pointer-events-none" style={{ color: 'var(--text-tertiary)' }} />

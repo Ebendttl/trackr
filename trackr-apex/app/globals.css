@@ -211,3 +211,66 @@ body {
   padding: 2px 6px !important;
   border-radius: 4px !important;
 }
+
+/* =========================================================
+   MOBILE — SAFE AREA & VIEWPORT UTILITIES
+   ========================================================= */
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-top    { padding-top: env(safe-area-inset-top); }
+.full-dvh    { height: 100dvh; }
+
+/* Prevent scroll bounce on iOS (body level) */
+body { overscroll-behavior: none; }
+
+/* Bottom sheet and FAB safe-area compensation */
+.bottom-sheet { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.mobile-fab   { bottom: calc(80px + 16px + env(safe-area-inset-bottom)); }
+
+/* Prevent iOS Safari auto-zoom on input focus */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* =========================================================
+   MOBILE TYPOGRAPHY SCALE  (< 768px)
+   ========================================================= */
+@media (max-width: 767px) {
+  .trackr-wordmark       { font-size: 17px; }
+  .apex-badge            { font-size: 9px; padding: 2px 6px; }
+  .panel-heading         { font-size: 11px; letter-spacing: 0.08em; }
+  .stat-value            { font-size: 15px; }
+  .stat-label            { font-size: 9px; }
+  .filter-pill           { font-size: 11px; padding: 5px 10px; }
+  .workout-card          { padding: 14px 16px; border-radius: 12px; }
+  .workout-metric-value  { font-size: 18px; }
+  .workout-metric-unit   { font-size: 8px; }
+  .search-input          { font-size: 16px; height: 40px; }
+}
+
+/* =========================================================
+   TABLET RESPONSIVE  (768px – 1023px)
+   ========================================================= */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar               { flex-basis: 320px !important; width: 320px !important; }
+  .stat-value            { font-size: 18px; }
+  .workout-metric-value  { font-size: 16px; }
+  .panel-heading         { font-size: 11px; }
+}
+
+/* =========================================================
+   ONBOARDING SPOTLIGHT
+   ========================================================= */
+.onboarding-spotlight {
+  box-shadow: 0 0 0 9999px rgba(2, 4, 8, 0.85) !important;
+  border-radius: 12px;
+  position: relative;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Map overlay label brightness boost (CartoDB fallback) */
+.leaflet-overlay-pane img {
+  filter: brightness(2.2) contrast(1.1);
+}

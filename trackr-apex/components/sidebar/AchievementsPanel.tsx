@@ -30,7 +30,7 @@ export default function AchievementsPanel() {
   }, [workouts]);
 
   return (
-    <div style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', marginTop: 12, marginBottom: 12, overflow: 'hidden', background: 'var(--surface-raised)' }}>
+    <div className="achievements-panel" style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', marginTop: 12, marginBottom: 12, overflow: 'hidden', background: 'var(--surface-raised)' }}>
       <button
         onClick={() => togglePanel('achievements')}
         className="w-full flex items-center justify-between px-4 py-3 hover:opacity-80 transition-opacity"

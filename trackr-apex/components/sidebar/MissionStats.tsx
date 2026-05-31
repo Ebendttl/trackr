@@ -28,7 +28,7 @@ export default function MissionStats() {
   }, [workouts]);
 
   return (
-    <div className="grid grid-cols-3 gap-2 py-4">
+    <div className="mission-stats grid grid-cols-3 gap-2 py-4">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.key}

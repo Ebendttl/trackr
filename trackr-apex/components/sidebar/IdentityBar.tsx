@@ -1,16 +1,18 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Palette } from 'lucide-react';
+import { Palette, HelpCircle } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import ThemeSelector from '@/components/ui/ThemeSelector';
 import { useState } from 'react';
 
 /**
  * Zone 1 — Identity Bar
- * Logo, wordmark, APEX badge, theme toggle.
+ * Logo, wordmark, APEX badge, theme toggle, and onboarding replay button.
+ * Hidden on mobile — replaced by MobileTopBar.
  */
 export default function IdentityBar() {
   const [themeOpen, setThemeOpen] = useState(false);
+  const startOnboarding = useUIStore((s) => s.startOnboarding);
 
   return (
     <div
@@ -50,6 +52,7 @@ export default function IdentityBar() {
 
         <div className="flex items-center gap-2">
           <span
+            className="trackr-wordmark"
             style={{
               fontFamily: 'var(--font-dm-serif)',
               fontSize: '22px',
@@ -63,6 +66,7 @@ export default function IdentityBar() {
             TRACKR
           </span>
           <span
+            className="apex-badge"
             style={{
               fontFamily: 'var(--font-geist-mono)',
               fontSize: '10px',
@@ -81,17 +85,31 @@ export default function IdentityBar() {
         </div>
       </div>
 
-      {/* Theme Toggle */}
-      <div className="relative">
+      {/* Right controls */}
+      <div className="flex items-center gap-2">
+        {/* Tour replay button */}
         <button
-          onClick={() => setThemeOpen((v) => !v)}
+          onClick={() => startOnboarding()}
           className="flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:opacity-80"
-          style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
-          aria-label="Open theme selector"
+          style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-default)', color: 'var(--text-tertiary)' }}
+          aria-label="Replay tour"
+          title="Replay onboarding tour"
         >
-          <Palette size={14} />
+          <HelpCircle size={13} />
         </button>
-        {themeOpen && <ThemeSelector onClose={() => setThemeOpen(false)} />}
+
+        {/* Theme Toggle */}
+        <div className="relative">
+          <button
+            onClick={() => setThemeOpen((v) => !v)}
+            className="flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:opacity-80"
+            style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
+            aria-label="Open theme selector"
+          >
+            <Palette size={14} />
+          </button>
+          {themeOpen && <ThemeSelector onClose={() => setThemeOpen(false)} />}
+        </div>
       </div>
     </div>
   );
