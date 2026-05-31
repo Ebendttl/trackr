@@ -6,22 +6,31 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta
       name="description"
-      content="a web app that keeps track of your biking and jogging"
+      content="SaaS-grade workout tracker with GPS route drawing, live weather analytics, and performance dashboard"
     />
-    <meta property="og:title" content="TRACKR" />
+    <meta property="og:title" content="TrackR Elite - GIS Analytics Platform" />
     <meta
       property="og:description"
-      content="keep track and map-out your workouts"
+      content="Track, map, and analyze your running and biking workouts with live GPS and weather intelligence."
     />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/trackrlogo1.png" />
-    <meta property="og:url" content="https://trackrie.netlify.app" />
+    <meta property="og:url" content="https://trackr-dun.vercel.app" />
 
+    <!-- Google Fonts & Icon Libraries -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@600;800&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
+    <!-- Leaflet GIS Map Styling and JS -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
@@ -29,26 +38,29 @@
       crossorigin=""
     />
     <script
-      defer
       src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
       integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
       crossorigin=""
     ></script>
 
-    <link rel="stylesheet" href="/trackr/styles.css" />
+    <!-- Chart.js CDN for performance dashboards -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <link rel="stylesheet" href="/trackr/styles.css" />
     <script defer src="/trackr/scripts.js"></script>
-    <title>trackr: keeps a track of your workouts</title>
+    <title>TrackR Elite: GIS Analytics & Workout Intelligence</title>
   </head>
   <body>
     <div class="sidebar">
+      <!-- Title branding -->
       <div class="titlebar">
         <img src="/trackr/public/trackrlogo.png" alt="Logo" class="logo" />
         <p class="ptitle">track</p>
         <span class="ptitler">R</span>
+        <span class="badge-elite">Elite</span>
       </div>
 
-      <!-- Premium Quick Stats Dashboard -->
+      <!-- Quick Stats Dashboard -->
       <div class="stats-container">
         <div class="stat-card">
           <span class="stat-icon">🔥</span>
@@ -73,7 +85,67 @@
         </div>
       </div>
 
+      <!-- Collapsible Analytics Panel -->
+      <div class="analytics-panel">
+        <div class="panel-header" id="toggle-analytics">
+          <h3><i class="fa-solid fa-chart-line"></i> Performance Dashboard</h3>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="panel-content collapsed" id="analytics-content">
+          <div class="chart-wrapper">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Filters Deck -->
+      <div class="controls-deck">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" placeholder="Search workouts..." />
+        </div>
+        <div class="filter-sort-row">
+          <div class="control-group">
+            <label for="filter-type">Type</label>
+            <select id="filter-type">
+              <option value="all">All</option>
+              <option value="jogging">Jogging</option>
+              <option value="biking">Biking</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="sort-by">Sort</label>
+            <select id="sort-by">
+              <option value="date-desc">Newest</option>
+              <option value="date-asc">Oldest</option>
+              <option value="distance-desc">Distance ↓</option>
+              <option value="duration-desc">Duration ↓</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Route Controls Helper Info -->
+      <div class="route-guide card-highlight" id="route-helper">
+        <div class="guide-header">
+          <span class="guide-badge"><i class="fa-solid fa-circle-info"></i> GPS Mode</span>
+          <button id="btn-toggle-drawing" class="btn-drawing-mode">
+            <i class="fa-solid fa-route"></i> Draw Route
+          </button>
+        </div>
+        <p class="guide-desc" id="guide-text">Click anywhere on the map to log a single workout spot.</p>
+        <div class="drawing-controls hidden" id="drawing-controls-buttons">
+          <span class="route-dist-label">Route Length: <b id="temp-route-distance">0.00</b> km</span>
+          <div class="draw-actions">
+            <button id="btn-clear-route" class="btn-action-small danger"><i class="fa-solid fa-trash"></i> Clear</button>
+            <button id="btn-save-route" class="btn-action-small success"><i class="fa-solid fa-check"></i> Complete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workouts & Forms List -->
       <ul class="workouts">
+        <!-- New Workout Form -->
         <form class="form hidden">
           <div class="form__row">
             <label class="form__label">Type</label>
@@ -84,13 +156,14 @@
           </div>
           <div class="form__row">
             <label class="form__label">Distance</label>
-            <input class="form__input form__input--distance" placeholder="km" />
+            <input class="form__input form__input--distance" placeholder="km" required />
           </div>
           <div class="form__row">
             <label class="form__label">Duration</label>
             <input
               class="form__input form__input--duration"
               placeholder="min"
+              required
             />
           </div>
           <div class="form__row">
@@ -109,81 +182,49 @@
           </div>
           <button class="form__btn">OK</button>
         </form>
-
-        <!-- <li class="workout workout--running" data-id="1234567890">
-          <div class="workout__title">
-            <h2 class="workout__title-heading">Running on April 14</h2>
-            <span class="workout__cancel">&timesbar;</span>
-          </div>
-          <h2 class="workout__title">Running on April 14</h2>
-          <div class="workout__details">
-            <span class="workout__icon">🏃‍♂️</span>
-            <span class="workout__value">5.2</span>
-            <span class="workout__unit">km</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⏱</span>
-            <span class="workout__value">24</span>
-            <span class="workout__unit">min</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⚡️</span>
-            <span class="workout__value">4.6</span>
-            <span class="workout__unit">min/km</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">🦶🏼</span>
-            <span class="workout__value">178</span>
-            <span class="workout__unit">spm</span>
-          </div>
-        </li>
-
-        <li class="workout workout--cycling" data-id="1234567891">
-          <h2 class="workout__title">Cycling on April 5</h2>
-          <div class="workout__details">
-            <span class="workout__icon">🚴‍♀️</span>
-            <span class="workout__value">27</span>
-            <span class="workout__unit">km</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⏱</span>
-            <span class="workout__value">95</span>
-            <span class="workout__unit">min</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⚡️</span>
-            <span class="workout__value">16</span>
-            <span class="workout__unit">km/h</span>
-          </div>
-          <div class="workout__details">
-            <span class="workout__icon">⛰</span>
-            <span class="workout__value">223</span>
-            <span class="workout__unit">m</span>
-          </div>
-        </li> -->
       </ul>
 
-      <div class="actions-container">
-        <button class="reset btn-reset">Clear All Workouts</button>
+      <!-- Collapsible Badges Achievement Section -->
+      <div class="badges-panel">
+        <div class="panel-header" id="toggle-badges">
+          <h3><i class="fa-solid fa-award"></i> Unlocked Achievements</h3>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="panel-content collapsed" id="badges-content">
+          <div class="badges-grid">
+            <div class="badge-item locked" id="badge-century" title="Log a total of 100+ km of workouts">
+              <span class="badge-icon">💯</span>
+              <span class="badge-title">Century Club</span>
+            </div>
+            <div class="badge-item locked" id="badge-speed" title="Exceed 30 km/h cycling or run with pace below 4.5 min/km">
+              <span class="badge-icon">⚡</span>
+              <span class="badge-title">Speed Demon</span>
+            </div>
+            <div class="badge-item locked" id="badge-explorer" title="Log a workout with a drawn route containing 3+ stops">
+              <span class="badge-icon">🗺️</span>
+              <span class="badge-title">Explorer</span>
+            </div>
+            <div class="badge-item locked" id="badge-weather" title="Log a workout in cold weather below 12°C">
+              <span class="badge-icon">❄️</span>
+              <span class="badge-title">Cold Warrior</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Controls & Credits -->
+      <div class="actions-container">
+        <button class="reset btn-reset"><i class="fa-solid fa-trash-can"></i> Clear All Workouts</button>
+      </div>
+
       <p class="copyright">
         &copy; Copyright by
-        <a
-          class="twitter-link"
-          target="_blank"
-          href="https://twitter.com/thefaks_officia"
-          >Micheal</a
-        >
-        <a
-          class="twitter-link"
-          target="_blank"
-          href="https://x.com/Eben_Akinseinde"
-        >
-          & Ebenezer</a
-        >
+        <a class="twitter-link" target="_blank" href="https://twitter.com/thefaks_officia">Micheal</a>
+        <a class="twitter-link" target="_blank" href="https://x.com/Eben_Akinseinde">& Ebenezer</a>
       </p>
     </div>
 
+    <!-- Main Map Canvas -->
     <div id="map" class="mappy"></div>
   </body>
 </html>
