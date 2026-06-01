@@ -30,12 +30,12 @@ export default function DocsConfigurationPage() {
           <tr className="border-b border-[var(--border-subtle)]">
             <td className="py-3 font-mono text-[var(--text-accent)]">NEXT_PUBLIC_APP_NAME</td>
             <td>string</td>
-            <td>"TrackR APEX"</td>
+            <td>&quot;TrackR APEX&quot;</td>
           </tr>
           <tr className="border-b border-[var(--border-subtle)]">
             <td className="py-3 font-mono text-[var(--text-accent)]">NEXT_PUBLIC_MAP_TILE_URL</td>
             <td>string</td>
-            <td className="truncate max-w-[200px]">CartoDB Dark Matter</td>
+            <td className="truncate max-w-[200px]">CartoDB Dark Matter (no tile auth)</td>
           </tr>
           <tr className="border-b border-[var(--border-subtle)]">
             <td className="py-3 font-mono text-[var(--text-accent)]">NEXT_PUBLIC_DEFAULT_ZOOM</td>

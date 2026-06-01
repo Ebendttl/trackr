@@ -12,6 +12,16 @@ import DrawingPolyline from './DrawingPolyline';
 import MapControls from './MapControls';
 import MapSearchPanel from './MapSearchPanel';
 
+const DEFAULT_TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const CARTO_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const STADIA_ATTRIBUTION =
+  '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+function getTileAttribution(tileUrl: string) {
+  return tileUrl.includes('stadiamaps.com') ? STADIA_ATTRIBUTION : CARTO_ATTRIBUTION;
+}
+
 function MapEventHandler() {
   const { drawingMode, addRoutePoint, setPendingFormCoords, routePoints, setCalculatedRouteDistance } = useMapStore();
   const { setFormOpen } = useUIStore();
@@ -45,11 +55,10 @@ export default function MapCore() {
   const workouts = useWorkoutStore((s) => s.workouts);
   const activeWorkoutId = useWorkoutStore((s) => s.activeWorkoutId);
 
-  // Stadia Alidade Smooth Dark — near-white labels, no API key required.
-  // Falls back to env override if provided.
-  const tileUrl =
-    process.env.NEXT_PUBLIC_MAP_TILE_URL ??
-    'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
+  // CartoDB Dark Matter works in production without provider-side domain auth.
+  // Override with NEXT_PUBLIC_MAP_TILE_URL only when the provider is production-ready.
+  const tileUrl = process.env.NEXT_PUBLIC_MAP_TILE_URL?.trim() || DEFAULT_TILE_URL;
+  const tileAttribution = getTileAttribution(tileUrl);
 
   // Dynamic zoom control on card click
   useEffect(() => {
@@ -74,7 +83,7 @@ export default function MapCore() {
       >
         <TileLayer
           url={tileUrl}
-          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution={tileAttribution}
           maxZoom={20}
         />
 
