@@ -132,26 +132,38 @@ export default function WorkoutForm() {
   const errs = isJogging ? errJogging : errBiking;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 30 }}
-      style={{
-        background: 'var(--surface-overlay)',
-        border: '1px solid var(--border-default)',
-        borderRadius: 'var(--radius-xl)',
-        boxShadow: 'var(--shadow-float)',
-      }}
-      className="p-5 flex flex-col gap-4 relative overflow-hidden"
-    >
-      <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-widest font-mono">
-          Establish Record
-        </h3>
-        <button onClick={handleClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors">
-          <X size={14} />
-        </button>
-      </div>
+    <>
+      {/* Mobile Backdrop — dims viewport behind the bottom sheet */}
+      <div
+        onClick={handleClose}
+        className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 md:hidden"
+        style={{ touchAction: 'none' }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 50 }}
+        style={{
+          background: 'var(--surface-overlay)',
+          border: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-float)',
+        }}
+        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[20px] p-5 pb-[40px] md:relative md:bottom-auto md:left-auto md:right-auto md:z-0 md:rounded-2xl md:p-5 flex flex-col gap-4 max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible"
+      >
+        {/* Mobile Drag Handle Indicator */}
+        <div className="flex justify-center md:hidden mb-1">
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--border-emphasis)' }} />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-widest font-mono">
+            Establish Record
+          </h3>
+          <button onClick={handleClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors p-1" style={{ minWidth: 28, minHeight: 28 }}>
+            <X size={14} />
+          </button>
+        </div>
 
       {/* GPS Telemetry Banner */}
       <AnimatePresence>
@@ -318,5 +330,6 @@ export default function WorkoutForm() {
         </button>
       </form>
     </motion.div>
+    </>
   );
 }

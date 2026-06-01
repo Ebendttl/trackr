@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import IdentityBar from './IdentityBar';
+import WelcomeBanner from './WelcomeBanner';
 import MissionStats from './MissionStats';
 import IntelligencePanel from './IntelligencePanel';
 import ControlDeck from './ControlDeck';
@@ -52,6 +53,11 @@ export default function Sidebar() {
           minHeight: 0,
         }}
       >
+        {/* Welcome banner — first visit only */}
+        <div style={{ flexShrink: 0 }}>
+          <WelcomeBanner />
+        </div>
+
         {/* Zone 2 — fixed height */}
         <div style={{ flexShrink: 0 }}>
           <MissionStats />

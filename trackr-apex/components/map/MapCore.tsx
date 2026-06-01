@@ -10,6 +10,7 @@ import WorkoutMarker from './WorkoutMarker';
 import RoutePolyline from './RoutePolyline';
 import DrawingPolyline from './DrawingPolyline';
 import MapControls from './MapControls';
+import MapSearchPanel from './MapSearchPanel';
 
 function MapEventHandler() {
   const { drawingMode, addRoutePoint, setPendingFormCoords, routePoints, setCalculatedRouteDistance } = useMapStore();
@@ -95,6 +96,9 @@ export default function MapCore() {
 
       {/* Floating Precision Controls */}
       {map && <MapControls map={map} />}
+
+      {/* Location Search + Route Panel */}
+      {map && <MapSearchPanel map={map} />}
     </div>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { Palette, HelpCircle } from 'lucide-react';
-import { useUIStore } from '@/stores/uiStore';
+import { Palette } from 'lucide-react';
 import ThemeSelector from '@/components/ui/ThemeSelector';
+import { TourReplayPill } from '@/components/sidebar/WelcomeBanner';
 
 /**
  * MobileTopBar — fixed 56px header shown only on mobile (< md).
@@ -10,7 +10,6 @@ import ThemeSelector from '@/components/ui/ThemeSelector';
  */
 export default function MobileTopBar() {
   const [themeOpen, setThemeOpen] = useState(false);
-  const startOnboarding = useUIStore((s) => s.startOnboarding);
 
   return (
     <header
@@ -70,14 +69,8 @@ export default function MobileTopBar() {
 
       {/* Right controls */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => startOnboarding()}
-          aria-label="Replay tour"
-          className="flex items-center justify-center"
-          style={{ width: 40, height: 40 }}
-        >
-          <HelpCircle size={18} color="var(--text-secondary)" />
-        </button>
+        {/* Tour replay — pill when completed, nothing when first visit (banner is in sidebar) */}
+        <TourReplayPill />
 
         <div className="relative">
           <button

@@ -55,17 +55,29 @@ export default function ControlDeck() {
       </div>
 
       {/* Filter + Sort row */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between w-full">
         <FilterPills />
-        <button
-          onClick={cycleSortMode}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded transition-colors shrink-0"
-          style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}
-          title={`Sort: ${SORT_MODES[sortIndex].label}`}
-        >
-          <ArrowUpDown size={10} />
-          {SORT_MODES[sortIndex].label}
-        </button>
+        <div className="flex justify-end md:block shrink-0">
+          <button
+            onClick={cycleSortMode}
+            className="flex items-center gap-1.5 px-3 py-2 md:px-2.5 md:py-1.5 rounded transition-colors"
+            style={{
+              background: 'var(--surface-overlay)',
+              border: '1px solid var(--border-default)',
+              color: 'var(--text-secondary)',
+              fontSize: '10px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              whiteSpace: 'nowrap',
+              minHeight: '36px',
+            }}
+            title={`Sort: ${SORT_MODES[sortIndex].label}`}
+          >
+            <ArrowUpDown size={10} />
+            {SORT_MODES[sortIndex].label}
+          </button>
+        </div>
       </div>
     </div>
   );

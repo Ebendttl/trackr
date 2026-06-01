@@ -87,8 +87,8 @@ export default function WorkoutCard({ workout }: { workout: Workout }) {
 
       <hr className="border-[var(--border-subtle)] my-0.5" />
 
-      {/* Grid containing metrics */}
-      <div className="grid grid-cols-4 gap-2 items-center">
+      {/* Grid containing metrics — 2x2 on mobile, 4 columns on desktop/tablet */}
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 items-center">
         <MetricDisplay value={workout.distance} unit="km" />
         <MetricDisplay value={workout.duration} unit="min" />
 

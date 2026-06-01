@@ -39,7 +39,7 @@ export default function MapControls({ map }: { map: L.Map }) {
   };
 
   return (
-    <div className="absolute top-6 right-6 z-[401] flex flex-col gap-2 pointer-events-auto select-none font-sans">
+    <div className="absolute right-3 top-1/2 -translate-y-1/2 md:translate-y-0 md:top-6 md:right-6 z-[401] flex flex-col gap-2 pointer-events-auto select-none font-sans">
       <div
         style={{
           background: 'var(--surface-glass)',
@@ -52,17 +52,17 @@ export default function MapControls({ map }: { map: L.Map }) {
       >
         <button
           onClick={handleZoomIn}
-          className="w-9 h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors border-b border-[var(--border-subtle)]"
+          className="w-12 h-12 md:w-9 md:h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors border-b border-[var(--border-subtle)]"
           title="Zoom In"
         >
-          <Plus size={15} />
+          <Plus size={18} className="md:w-[15px] md:h-[15px]" />
         </button>
         <button
           onClick={handleZoomOut}
-          className="w-9 h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
+          className="w-12 h-12 md:w-9 md:h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
           title="Zoom Out"
         >
-          <Minus size={15} />
+          <Minus size={18} className="md:w-[15px] md:h-[15px]" />
         </button>
       </div>
 
@@ -75,10 +75,10 @@ export default function MapControls({ map }: { map: L.Map }) {
           boxShadow: 'var(--shadow-card)',
           borderRadius: 'var(--radius-md)',
         }}
-        className="w-9 h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
+        className="w-12 h-12 md:w-9 md:h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
         title="Center on Me"
       >
-        <Locate size={15} />
+        <Locate size={18} className="md:w-[15px] md:h-[15px]" />
       </button>
 
       {workouts.length > 0 && (
@@ -91,10 +91,10 @@ export default function MapControls({ map }: { map: L.Map }) {
             boxShadow: 'var(--shadow-card)',
             borderRadius: 'var(--radius-md)',
           }}
-          className="w-9 h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
+          className="w-12 h-12 md:w-9 md:h-9 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
           title="Fit All Workouts"
         >
-          <Maximize2 size={14} />
+          <Maximize2 size={16} className="md:w-[14px] md:h-[14px]" />
         </button>
       )}
     </div>

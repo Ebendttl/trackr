@@ -1,14 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, DM_Serif_Display } from 'next/font/google';
 import './globals.css';
-
-const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans' });
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
-const dmSerif = DM_Serif_Display({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-dm-serif',
-});
 
 export const metadata: Metadata = {
   title: 'TrackR APEX — GIS Workout Analytics Platform',
@@ -36,9 +27,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="void" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${dmSerif.variable} antialiased`}
-      >
+      <body className="antialiased font-sans">
         {children}
       </body>
     </html>

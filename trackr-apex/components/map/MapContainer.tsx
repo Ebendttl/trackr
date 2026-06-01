@@ -20,7 +20,7 @@ const MapCore = dynamic(() => import('./MapCore'), {
  */
 export default function MapContainer() {
   return (
-    <div className="w-full h-full relative overflow-hidden">
+    <div className="fixed inset-0 z-0 top-[56px] bottom-[80px] md:relative md:top-auto md:bottom-auto md:w-full md:h-full md:z-auto overflow-hidden">
       <MapCore />
       {/* Dynamic dark edge vignette layer */}
       <div className="map-vignette" />

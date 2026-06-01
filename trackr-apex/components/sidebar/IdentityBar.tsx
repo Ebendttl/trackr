@@ -1,8 +1,8 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Palette, HelpCircle } from 'lucide-react';
-import { useUIStore } from '@/stores/uiStore';
+import { Palette } from 'lucide-react';
 import ThemeSelector from '@/components/ui/ThemeSelector';
+import { TourReplayPill } from './WelcomeBanner';
 import { useState } from 'react';
 
 /**
@@ -12,7 +12,6 @@ import { useState } from 'react';
  */
 export default function IdentityBar() {
   const [themeOpen, setThemeOpen] = useState(false);
-  const startOnboarding = useUIStore((s) => s.startOnboarding);
 
   return (
     <div
@@ -87,16 +86,8 @@ export default function IdentityBar() {
 
       {/* Right controls */}
       <div className="flex items-center gap-2">
-        {/* Tour replay button */}
-        <button
-          onClick={() => startOnboarding()}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:opacity-80"
-          style={{ background: 'var(--surface-raised)', border: '1px solid var(--border-default)', color: 'var(--text-tertiary)' }}
-          aria-label="Replay tour"
-          title="Replay onboarding tour"
-        >
-          <HelpCircle size={13} />
-        </button>
+        {/* Tour replay pill — state-aware (banner on first visit, pill after) */}
+        <TourReplayPill />
 
         {/* Theme Toggle */}
         <div className="relative">

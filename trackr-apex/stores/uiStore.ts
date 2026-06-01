@@ -32,6 +32,7 @@ interface UIStore {
   isOnboardingActive: boolean;
   currentOnboardingStep: number;
   startOnboarding: () => void;
+  replayOnboarding: () => void;
   nextStep: () => void;
   prevStep: () => void;
   skipOnboarding: () => void;
@@ -99,6 +100,8 @@ export const useUIStore = create<UIStore>((set, get) => ({
   currentOnboardingStep: 0,
 
   startOnboarding: () => set({ isOnboardingActive: true, currentOnboardingStep: 0 }),
+
+  replayOnboarding: () => set({ isOnboardingActive: true, currentOnboardingStep: 0 }),
 
   nextStep: () => {
     const { currentOnboardingStep } = get();

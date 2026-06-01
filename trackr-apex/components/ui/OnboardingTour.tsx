@@ -1,308 +1,355 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Zap, BarChart3, TrendingUp, SlidersHorizontal,
-  Route, Map, Trophy, Play, ChevronLeft, ChevronRight, X,
-} from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
+import getDialogPosition from '@/utils/tourPositioning';
+import { onboardingSteps } from '@/lib/onboardingSteps';
 
-const ICON_MAP = { Zap, BarChart3, TrendingUp, SlidersHorizontal, Route, Map, Trophy, Play };
+const DIALOG_WIDTH = 340;
+const VIEWPORT_MARGIN = 16;
 
-interface Step {
-  id: string;
-  title: string;
-  body: string;
-  target: string;
-  icon: keyof typeof ICON_MAP;
-}
+/**
+ * OnboardingTour — premium interactive walkthrough for new users.
+ * Rendered via createPortal directly on document.body so it is NEVER
+ * clipped by sidebar overflow:hidden or CSS transforms.
+ *
+ * Desktop: clamped tooltip positioned near highlighted element.
+ * Mobile:  fixed bottom-sheet — no positioning math needed.
+ *
+ * Fixes applied (Patch v1.0.6):
+ *  • createPortal(…, document.body) — escapes any parent stacking context
+ *  • 300ms fallback timer forces isPositioned = true if rAF measurement fails
+ *  • key={step.id} on dialog motion.div forces remount on each step change
+ *  • Mobile branch has NO visibility guard — always animates in immediately
+ */
+export default function OnboardingTour() {
+  const {
+    isOnboardingActive,
+    currentOnboardingStep,
+    nextStep,
+    prevStep,
+    skipOnboarding,
+    completeOnboarding,
+  } = useUIStore();
 
-const STEPS: Step[] = [
-  {
-    id: 'welcome',
-    title: 'Welcome to TrackR APEX',
-    body: "Your personal mission control for every run and ride. Built for athletes who take their training seriously. Let's show you around — it only takes 60 seconds.",
-    target: 'center',
-    icon: 'Zap',
-  },
-  {
-    id: 'stats',
-    title: 'Your Command Center',
-    body: 'Your total workouts, distance, and duration update here in real-time every time you log a session. Watch these numbers grow.',
-    target: '.mission-stats',
-    icon: 'BarChart3',
-  },
-  {
-    id: 'intelligence',
-    title: 'Performance Intelligence',
-    body: 'Tap any tab to visualize your distance trends, activity split, or pace evolution over time.',
-    target: '.intelligence-panel',
-    icon: 'TrendingUp',
-  },
-  {
-    id: 'filters',
-    title: 'Find Any Workout Instantly',
-    body: 'Search by name, filter by type, or sort by distance and duration. The filter pills update your list in real-time.',
-    target: '.control-deck',
-    icon: 'SlidersHorizontal',
-  },
-  {
-    id: 'gps',
-    title: 'GPS Logging Modes',
-    body: 'Two ways to log: tap anywhere on the map for a single-location workout, or activate Route Trace to draw your exact path.',
-    target: '.gps-ops-panel',
-    icon: 'Route',
-  },
-  {
-    id: 'map',
-    title: 'Your Training Ground',
-    body: 'This is where it all happens. Tap anywhere on the map to pin a workout location. Your routes appear as glowing trail lines.',
-    target: '#map',
-    icon: 'Map',
-  },
-  {
-    id: 'achievements',
-    title: 'Unlock Achievements',
-    body: 'Hit milestones to unlock badges — from the Century Club (100km total) to the Cold Warrior (training below 12°C).',
-    target: '.achievements-panel',
-    icon: 'Trophy',
-  },
-  {
-    id: 'finish',
-    title: "You're Ready. Let's Go.",
-    body: 'Tap anywhere on the map (or hit the + button on mobile) to log your first workout. Your first entry is waiting.',
-    target: 'center',
-    icon: 'Play',
-  },
-];
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 100, left: 100 });
+  const [isPositioned, setIsPositioned] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-interface TooltipPos { top: number; left: number; }
+  const step = onboardingSteps[currentOnboardingStep];
+  const isLastStep = currentOnboardingStep === onboardingSteps.length - 1;
 
-function getTooltipPosition(target: string): TooltipPos | null {
-  if (target === 'center' || target === '#map') return null;
-  const el = document.querySelector(target);
-  if (!el) return null;
-  const rect = el.getBoundingClientRect();
-  return { top: rect.bottom + 12, left: Math.max(8, rect.left) };
-}
+  // SSR guard — portals require document
+  useEffect(() => { setMounted(true); }, []);
 
-/** Progress pills */
-function ProgressPills({ total, current }: { total: number; current: number }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      {Array.from({ length: total }).map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{ width: i === current ? 20 : 6 }}
-          style={{
-            height: 6,
-            borderRadius: 3,
-            background:
-              i === current
-                ? 'var(--accent-motion)'
-                : i < current
-                  ? 'rgba(124,106,247,0.4)'
-                  : 'var(--border-default)',
-          }}
-          transition={{ duration: 0.3 }}
-        />
-      ))}
-    </div>
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Apply / remove spotlight on target element
+  useEffect(() => {
+    if (!isOnboardingActive || !step) return;
+
+    document.querySelectorAll('.onboarding-spotlight').forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      htmlEl.style.removeProperty('box-shadow');
+      htmlEl.style.removeProperty('position');
+      htmlEl.style.removeProperty('z-index');
+      htmlEl.style.removeProperty('border-radius');
+      htmlEl.classList.remove('onboarding-spotlight');
+    });
+
+    if (step.target && step.target !== 'center' && step.target !== '#map') {
+      const target = document.querySelector(step.target) as HTMLElement | null;
+      if (target) {
+        target.classList.add('onboarding-spotlight');
+        target.style.boxShadow = '0 0 0 9999px rgba(2, 4, 8, 0.85)';
+        target.style.position = 'relative';
+        target.style.zIndex = '9999';
+        target.style.borderRadius = '12px';
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    return () => {
+      document.querySelectorAll('.onboarding-spotlight').forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.removeProperty('box-shadow');
+        htmlEl.style.removeProperty('position');
+        htmlEl.style.removeProperty('z-index');
+        htmlEl.style.removeProperty('border-radius');
+        el.classList.remove('onboarding-spotlight');
+      });
+    };
+  }, [currentOnboardingStep, isOnboardingActive, step]);
+
+  // Measure dialog height then compute clamped position (desktop only).
+  // A 300ms fallback timer guarantees the dialog becomes visible even if the
+  // rAF measurement callback fires before the ref is populated.
+  const calculatePosition = useCallback(() => {
+    if (isMobile || !step) return;
+    setIsPositioned(false);
+
+    const fallbackTimer = setTimeout(() => {
+      setPosition({
+        top: Math.max(VIEWPORT_MARGIN, (window.innerHeight - 300) / 2),
+        left: Math.max(VIEWPORT_MARGIN, (window.innerWidth - DIALOG_WIDTH) / 2),
+      });
+      setIsPositioned(true);
+    }, 300);
+
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (!dialogRef.current) return;
+        clearTimeout(fallbackTimer);
+        const height = dialogRef.current.offsetHeight;
+        const pos = getDialogPosition(step.target, step.position, height);
+        setPosition(pos);
+        setIsPositioned(true);
+      })
+    );
+
+    return () => clearTimeout(fallbackTimer);
+  }, [step, isMobile]);
+
+  useEffect(() => {
+    const cleanup = calculatePosition();
+    return cleanup;
+  }, [calculatePosition]);
+
+  useEffect(() => {
+    window.addEventListener('resize', calculatePosition);
+    return () => window.removeEventListener('resize', calculatePosition);
+  }, [calculatePosition]);
+
+  if (!mounted || !isOnboardingActive || !step) return null;
+
+  const dialogWidth = Math.min(DIALOG_WIDTH, window.innerWidth - VIEWPORT_MARGIN * 2);
+
+  // ─── BACKDROP ─────────────────────────────────────────────────────────────
+  const Backdrop = (
+    <motion.div
+      key="tour-backdrop"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9998,
+        background: 'rgba(2, 4, 8, 0.82)',
+        backdropFilter: 'blur(2px)',
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={skipOnboarding}
+    />
   );
-}
 
-/** Inner card content — shared by desktop and mobile */
-function StepContent({
-  step,
-  stepIndex,
-  total,
-  onPrev,
-  onNext,
-  onSkip,
-  isLast,
-}: {
-  step: Step;
-  stepIndex: number;
-  total: number;
-  onPrev: () => void;
-  onNext: () => void;
-  onSkip: () => void;
-  isLast: boolean;
-}) {
-  const Icon = ICON_MAP[step.icon];
-
-  return (
+  // ─── DIALOG INNER CONTENT ─────────────────────────────────────────────────
+  const DialogContent = (
     <>
-      {/* Icon + title */}
-      <div className="flex items-start gap-3 mb-3">
-        <div
-          className="flex items-center justify-center rounded-xl shrink-0"
+      {/* Step counter */}
+      <div
+        style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+          color: 'var(--text-tertiary)', textTransform: 'uppercase',
+          marginBottom: 12, display: 'flex', justifyContent: 'space-between',
+          alignItems: 'center', fontFamily: 'var(--font-geist-mono)',
+        }}
+      >
+        <span>STEP {currentOnboardingStep + 1} OF {onboardingSteps.length}</span>
+        <button
+          onClick={skipOnboarding}
+          aria-label="Close tour"
           style={{
-            width: 40, height: 40,
-            background: 'var(--accent-motion-dim)',
-            border: '1px solid var(--border-motion)',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center',
+            padding: '4px', borderRadius: 4, fontSize: 11,
           }}
         >
-          <Icon size={18} color="var(--accent-motion)" />
+          ✕
+        </button>
+      </div>
+
+      {/* Icon + Title */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+        <div
+          style={{
+            width: 40, height: 40, minWidth: 40, borderRadius: '50%',
+            background: 'var(--accent-motion-dim)', border: '1px solid var(--border-motion)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
+          }}
+        >
+          {step.iconEmoji}
         </div>
-        <div>
-          <p style={{ fontSize: 11, fontFamily: 'var(--font-geist-mono)', color: 'var(--accent-motion)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>
-            Step {stepIndex + 1} of {total}
-          </p>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-            {step.title}
-          </h3>
-        </div>
+        <h3
+          style={{
+            fontFamily: 'var(--font-dm-serif)', fontSize: 17, fontWeight: 400,
+            color: 'var(--text-primary)', margin: 0, lineHeight: 1.3,
+          }}
+        >
+          {step.title}
+        </h3>
       </div>
 
       {/* Body */}
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
+      <p
+        style={{
+          fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)',
+          margin: '0 0 16px 0', fontFamily: 'var(--font-geist-sans)',
+        }}
+      >
         {step.body}
       </p>
 
-      {/* Progress + Controls */}
-      <div className="flex items-center justify-between">
-        <ProgressPills total={total} current={stepIndex} />
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onSkip}
-            style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '8px 4px', minHeight: 36 }}
-          >
-            Skip
-          </button>
-          {stepIndex > 0 && (
+      {/* Progress pills */}
+      <div style={{ display: 'flex', gap: 5, marginBottom: 16, alignItems: 'center' }}>
+        {onboardingSteps.map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{ width: i === currentOnboardingStep ? 20 : 6 }}
+            style={{
+              height: 6, borderRadius: 3,
+              background:
+                i === currentOnboardingStep
+                  ? 'var(--accent-motion)'
+                  : i < currentOnboardingStep
+                  ? 'rgba(124,106,247,0.4)'
+                  : 'var(--border-default)',
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <button
+          onClick={skipOnboarding}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer', fontSize: 11,
+            color: 'var(--text-tertiary)', fontFamily: 'var(--font-geist-sans)',
+            letterSpacing: '0.06em', padding: '8px 4px', minHeight: 44,
+            fontWeight: 700, textTransform: 'uppercase',
+          }}
+        >
+          SKIP TOUR
+        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {currentOnboardingStep > 0 && (
             <button
-              onClick={onPrev}
-              className="flex items-center justify-center rounded-lg transition-opacity hover:opacity-80"
-              style={{ minHeight: 36, padding: '0 10px', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--surface-overlay)' }}
+              onClick={prevStep}
+              style={{
+                padding: '10px 16px', minHeight: 44, borderRadius: 8,
+                background: 'var(--surface-raised)', border: '1px solid var(--border-default)',
+                color: 'var(--text-secondary)', cursor: 'pointer',
+                fontSize: 13, fontFamily: 'var(--font-geist-sans)',
+              }}
             >
-              <ChevronLeft size={14} />
+              ← Back
             </button>
           )}
           <button
-            onClick={onNext}
-            className="flex items-center gap-1.5 rounded-lg font-bold transition-opacity hover:opacity-90"
+            onClick={isLastStep ? completeOnboarding : nextStep}
             style={{
-              minHeight: 36, padding: '0 14px',
-              background: isLast ? 'var(--accent-motion)' : 'var(--accent-motion)',
-              color: 'white',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.06em',
+              padding: '10px 20px', minHeight: 44, borderRadius: 8,
+              background: isLastStep ? 'var(--accent-motion)' : 'var(--accent-motion-dim)',
+              border: `1px solid ${isLastStep ? 'transparent' : 'var(--border-motion)'}`,
+              color: isLastStep ? '#fff' : 'var(--accent-motion)',
+              cursor: 'pointer', fontSize: 13, fontWeight: 600,
+              fontFamily: 'var(--font-geist-sans)',
             }}
           >
-            {isLast ? 'Start' : 'Next'}
-            {!isLast && <ChevronRight size={14} />}
+            {isLastStep ? 'START TRAINING →' : 'Next →'}
           </button>
         </div>
       </div>
     </>
   );
-}
 
-/**
- * OnboardingTour — adaptive desktop + mobile first-visit guide.
- * Desktop: 320px tooltip card positioned near target element.
- * Mobile: bottom sheet card slides up from bottom.
- */
-export default function OnboardingTour() {
-  const { isOnboardingActive, currentOnboardingStep, nextStep, prevStep, skipOnboarding } = useUIStore();
-  const [tooltipPos, setTooltipPos] = useState<TooltipPos | null>(null);
-  const step = STEPS[currentOnboardingStep];
-  const isLast = currentOnboardingStep === STEPS.length - 1;
-
-  // Spotlight target element
-  useEffect(() => {
-    if (!isOnboardingActive) return;
-    // Remove previous spotlight
-    document.querySelectorAll('.onboarding-spotlight').forEach((el) =>
-      el.classList.remove('onboarding-spotlight'),
+  // ─── MOBILE RENDER: Bottom Sheet (no positioning math, always visible) ─────
+  if (isMobile) {
+    return createPortal(
+      <AnimatePresence>
+        {isOnboardingActive && (
+          <>
+            {Backdrop}
+            <motion.div
+              key={`tour-mobile-${step.id}`}
+              ref={dialogRef}
+              style={{
+                position: 'fixed', bottom: 0, left: 0, right: 0,
+                zIndex: 10000,
+                background: 'var(--surface-overlay)',
+                borderRadius: '20px 20px 0 0',
+                border: '1px solid var(--border-emphasis)',
+                padding: '8px 20px 20px',
+                paddingBottom: 'calc(20px + env(safe-area-inset-bottom))',
+                maxHeight: '70vh', overflowY: 'auto',
+                boxShadow: '0 -8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(124,106,247,0.15)',
+              }}
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--border-emphasis)' }} />
+              </div>
+              {DialogContent}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>,
+      document.body
     );
+  }
 
-    if (step.target !== 'center' && step.target !== '#map') {
-      const el = document.querySelector(step.target);
-      if (el) el.classList.add('onboarding-spotlight');
-    }
-
-    // Compute desktop tooltip position
-    setTooltipPos(getTooltipPosition(step.target));
-
-    return () => {
-      document.querySelectorAll('.onboarding-spotlight').forEach((el) =>
-        el.classList.remove('onboarding-spotlight'),
-      );
-    };
-  }, [isOnboardingActive, currentOnboardingStep, step.target]);
-
-  if (!isOnboardingActive) return null;
-
-  const sharedProps = { step, stepIndex: currentOnboardingStep, total: STEPS.length, onPrev: prevStep, onNext: nextStep, onSkip: skipOnboarding, isLast };
-
-  return (
-    <AnimatePresence mode="wait">
-      {/* Backdrop */}
-      <motion.div
-        key="backdrop"
-        className="fixed inset-0 z-[9998]"
-        style={{ background: 'rgba(2,4,8,0.7)', backdropFilter: 'blur(2px)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={skipOnboarding}
-      />
-
-      {/* Mobile: bottom sheet card */}
-      <motion.div
-        key={`mobile-step-${currentOnboardingStep}`}
-        className="fixed bottom-0 left-0 right-0 z-[10000] md:hidden"
-        style={{
-          background: 'var(--surface-overlay)',
-          borderRadius: '20px 20px 0 0',
-          border: '1px solid var(--border-emphasis)',
-          padding: '24px 24px 40px',
-          boxShadow: '0 -8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(124,106,247,0.2)',
-        }}
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <StepContent {...sharedProps} />
-      </motion.div>
-
-      {/* Desktop: positional tooltip */}
-      <motion.div
-        key={`desktop-step-${currentOnboardingStep}`}
-        className="fixed z-[10000] hidden md:block"
-        style={{
-          width: 320,
-          top: tooltipPos ? tooltipPos.top : '50%',
-          left: tooltipPos ? tooltipPos.left : '50%',
-          transform: tooltipPos ? undefined : 'translate(-50%, -50%)',
-          background: 'var(--surface-overlay)',
-          border: '1px solid var(--border-emphasis)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '18px',
-          boxShadow: '0 8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(124,106,247,0.15)',
-        }}
-        initial={{ opacity: 0, scale: 0.92, y: 8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close */}
-        <button
-          onClick={skipOnboarding}
-          className="absolute top-3 right-3 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity"
-          style={{ width: 28, height: 28, color: 'var(--text-tertiary)' }}
-          aria-label="Close tour"
-        >
-          <X size={14} />
-        </button>
-        <StepContent {...sharedProps} />
-      </motion.div>
-    </AnimatePresence>
+  // ─── DESKTOP RENDER: Clamped Positioned Tooltip ───────────────────────────
+  return createPortal(
+    <AnimatePresence>
+      {isOnboardingActive && (
+        <>
+          {Backdrop}
+          <motion.div
+            key={`tour-desktop-${step.id}`}
+            ref={dialogRef}
+            style={{
+              position: 'fixed',
+              top: position.top,
+              left: position.left,
+              width: dialogWidth,
+              maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+              maxHeight: `calc(100vh - ${VIEWPORT_MARGIN * 2}px)`,
+              overflowY: 'auto',
+              zIndex: 10000,
+              background: 'var(--surface-overlay)',
+              border: '1px solid var(--border-emphasis)',
+              borderRadius: 16,
+              padding: '20px',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px rgba(124,106,247,0.15)',
+              visibility: isPositioned ? 'visible' : 'hidden',
+            }}
+            initial={{ opacity: 0, scale: 0.94, y: 8 }}
+            animate={{
+              opacity: isPositioned ? 1 : 0,
+              scale: isPositioned ? 1 : 0.94,
+              y: isPositioned ? 0 : 8,
+            }}
+            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {DialogContent}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }

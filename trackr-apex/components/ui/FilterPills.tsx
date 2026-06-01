@@ -15,7 +15,7 @@ export default function FilterPills() {
   const { filterType, setFilterType } = useWorkoutStore();
 
   return (
-    <div className="flex gap-1 p-1 bg-[var(--surface-overlay)] border border-[var(--border-subtle)] rounded-lg relative overflow-hidden">
+    <div className="flex gap-1 p-1 bg-[var(--surface-overlay)] border border-[var(--border-subtle)] rounded-lg relative overflow-hidden w-full md:w-auto">
       {options.map((opt) => {
         const isActive = filterType === opt.value;
         const activeBgClass =
@@ -38,7 +38,7 @@ export default function FilterPills() {
             style={{
               color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
             }}
-            className="px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider relative transition-all cursor-pointer select-none"
+            className="flex-1 md:flex-none px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider relative transition-all cursor-pointer select-none"
           >
             {isActive && (
               <motion.div
