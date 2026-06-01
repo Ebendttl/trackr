@@ -180,6 +180,18 @@ trackr/                          ← repo root
 
 ---
 
+## ✅ Patch v1.0.7 (Completed — June 1, 2026)
+
+### Fix — Vercel Deployment Serving Old Vanilla JS Version
+- **Root cause**: Root-level `vercel.json` had `"outputDirectory": "dist"` pointing to old Parcel build output, causing Vercel to serve the legacy vanilla JS TrackR Elite app instead of the Next.js APEX version.
+- **Updated `vercel.json`** at repo root: Added `"rootDirectory": "trackr-apex"`, `"buildCommand": "npm run build"`, `"outputDirectory": ".next"`, `"framework": "nextjs"`, and security headers. This tells Vercel to install, build, and serve from `trackr-apex/` as the project root.
+- **Renamed root `package.json`** to `package.json.legacy` — removed old Parcel config from Vercel's framework detection path while preserving the file for reference.
+- **Verified** `trackr-apex/package.json` has correct `"build": "next build"` script (already present).
+- **Verified** `trackr-apex/next.config.ts` exists and is properly configured (already present).
+- **No application code changed** — only deployment configuration files modified.
+
+---
+
 ## 🎯 Next Steps / Backlog
 
 - [ ] Connect custom domains to Vercel dashboard.
@@ -189,4 +201,4 @@ trackr/                          ← repo root
 
 ---
 
-*Last updated: June 1, 2026 after successful integration of Patch v1.0.6.*
+*Last updated: June 1, 2026 after successful integration of Patch v1.0.7.*
