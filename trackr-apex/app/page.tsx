@@ -46,9 +46,11 @@ export default function HomePage() {
 
       {/* ── Map — fills all remaining space on desktop, full screen on mobile ── */}
       <div
-        className="flex-1 relative overflow-hidden"
+        className="flex-1 w-full h-full relative overflow-hidden"
         style={{
           // On mobile: map runs from below TopBar (56px) to above BottomSheet peek (80px)
+          width: '100%',
+          height: '100%',
         }}
       >
         <MapContainer />

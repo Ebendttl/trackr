@@ -76,36 +76,52 @@ export default function MapCore() {
   useEffect(() => {
     if (!map) return;
 
-    // Invalidate size immediately
-    map.invalidateSize();
-
-    // Call invalidateSize after different delay intervals to handle transitions/layout adjustments
-    const timers = [100, 300, 500, 1000, 2000].map((delay) =>
-      setTimeout(() => {
-        map.invalidateSize();
-      }, delay)
-    );
-
-    // Also invalidate size when window resizes
+    let resizeObserver: ResizeObserver | null = null;
+    let timers: NodeJS.Timeout[] = [];
     const handleResize = () => {
       map.invalidateSize();
     };
-    window.addEventListener('resize', handleResize);
+
+    map.whenReady(() => {
+      // Invalidate size immediately
+      map.invalidateSize();
+
+      // Observe the map container element for any size changes (animations, layout reflows, sidebar collapse, etc)
+      const container = map.getContainer();
+      if (container) {
+        resizeObserver = new ResizeObserver(() => {
+          map.invalidateSize();
+        });
+        resizeObserver.observe(container);
+      }
+
+      // Staggered timers as a fallback mechanism for delayed render steps
+      timers = [100, 300, 500, 1000, 2000].map((delay) =>
+        setTimeout(() => {
+          map.invalidateSize();
+        }, delay)
+      );
+
+      // Explicit window resize event
+      window.addEventListener('resize', handleResize);
+    });
 
     return () => {
+      if (resizeObserver) resizeObserver.disconnect();
       timers.forEach((timer) => clearTimeout(timer));
       window.removeEventListener('resize', handleResize);
     };
   }, [map]);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative" style={{ width: '100%', height: '100%' }}>
       <MapContainer
-        center={[6.5244, 3.3792]} // Default center coords
-        zoom={13}
+        center={[6.5355, 3.3450]} // Default center — Ikeja/Surulere mainland (avoids Lagos Lagoon dark-water tiles)
+        zoom={14}
         className="w-full h-full"
         ref={setMap}
         zoomControl={false}
+        style={{ width: '100%', height: '100%' }}
       >
         <TileLayer
           url={tileUrl}

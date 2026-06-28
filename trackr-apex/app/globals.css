@@ -146,7 +146,7 @@ body {
   background: var(--surface-void) !important;
 }
 
-/* Map vignette overlay */
+/* Map vignette overlay — subtler gradient to avoid hiding dark-themed tiles at edges */
 .map-vignette {
   position: absolute;
   inset: 0;
@@ -154,8 +154,8 @@ body {
   z-index: 400;
   background: radial-gradient(
     ellipse at center,
-    transparent 55%,
-    rgba(2, 4, 8, 0.5) 100%
+    transparent 65%,
+    rgba(2, 4, 8, 0.25) 100%
   );
 }
 
