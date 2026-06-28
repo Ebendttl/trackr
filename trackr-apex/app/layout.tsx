@@ -23,9 +23,9 @@ export const metadata: Metadata = {
     description: 'Elite GIS Workout Analytics Platform',
   },
   icons: {
-    icon: '/icon.png',
-    shortcut: '/favicon.ico',
-    apple: '/apple-icon.png',
+    icon: '/icon.png?v=2',
+    shortcut: '/favicon.ico?v=2',
+    apple: '/apple-icon.png?v=2',
   },
 };
 

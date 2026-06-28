@@ -72,6 +72,32 @@ export default function MapCore() {
     }
   }, [activeWorkoutId, workouts, map]);
 
+  // Trigger invalidateSize to fix incomplete rendering or gray tiles due to container size adjustments on mount/animations
+  useEffect(() => {
+    if (!map) return;
+
+    // Invalidate size immediately
+    map.invalidateSize();
+
+    // Call invalidateSize after different delay intervals to handle transitions/layout adjustments
+    const timers = [100, 300, 500, 1000, 2000].map((delay) =>
+      setTimeout(() => {
+        map.invalidateSize();
+      }, delay)
+    );
+
+    // Also invalidate size when window resizes
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [map]);
+
   return (
     <div className="w-full h-full relative">
       <MapContainer
