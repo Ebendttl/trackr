@@ -151,7 +151,7 @@ class App {
     this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     // Apply Obsidian premium dark matter tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_4v3u_1_22f35a4e8106189acf8622d0', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(this.#map);

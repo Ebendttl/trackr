@@ -55,8 +55,7 @@ export default function MapCore() {
   const workouts = useWorkoutStore((s) => s.workouts);
   const activeWorkoutId = useWorkoutStore((s) => s.activeWorkoutId);
 
-  // CartoDB Dark Matter works in production without provider-side domain auth.
-  // Override with NEXT_PUBLIC_MAP_TILE_URL only when the provider is production-ready.
+  // CARTO Basemaps require ?key=YOUR_KEY (configured via NEXT_PUBLIC_MAP_TILE_URL in .env.local)
   const tileUrl = process.env.NEXT_PUBLIC_MAP_TILE_URL?.trim() || DEFAULT_TILE_URL;
   const tileAttribution = getTileAttribution(tileUrl);
 
