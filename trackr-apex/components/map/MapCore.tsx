@@ -12,7 +12,8 @@ import DrawingPolyline from './DrawingPolyline';
 import MapControls from './MapControls';
 import MapSearchPanel from './MapSearchPanel';
 
-const DEFAULT_TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const DEFAULT_TILE_URL =
+  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_4v3u_1_22f35a4e8106189acf8622d0';
 const CARTO_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 const STADIA_ATTRIBUTION =
